@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>А скільки за рік? 📈 — Фінансовий Детектив</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Caveat:wght@600;700&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F5EF; --cream:#FFF5E1; --yellow:#FFD93D;
+    --orange:#FF6B35; --mint:#06D6A0; --sky:#4ECDC4;
+    --pink:#FF8FA3; --red:#E63946; --purple:#7C3AED;
+    --dark:#1B1240; --darker:#0F0728; --gray:#5a4a8a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{min-height:100%}
+  body{
+    font-family:'Nunito',system-ui,sans-serif;
+    background:var(--paper); color:var(--dark); min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(124,58,237,.12), transparent 45%),
+      radial-gradient(circle at 85% 75%, rgba(255,107,53,.12), transparent 45%);
+    padding:14px 14px 30px;
+  }
+  h1,h2,h3{font-family:'Fredoka',sans-serif;font-weight:700;letter-spacing:-.02em;line-height:1.05}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .hand{font-family:'Caveat',cursive;font-weight:700}
+  .wrap{max-width:560px;margin:0 auto}
+  .tag{display:inline-block;background:var(--dark);color:var(--yellow);padding:5px 14px;border-radius:999px;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--orange);color:#fff;
+    padding:14px 26px;border:none;border-radius:14px;
+    font-family:'Fredoka',sans-serif;font-weight:600;font-size:18px;cursor:pointer;
+    box-shadow:0 5px 0 #c44419;
+    transition:transform .12s ease, box-shadow .12s ease;
+    text-decoration:none;
+  }
+  .btn:active{transform:translateY(3px);box-shadow:0 2px 0 #c44419}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.dark{background:var(--dark);box-shadow:0 5px 0 var(--darker)}
+  .btn.dark:active{box-shadow:0 2px 0 var(--darker)}
+  .btn.mint{background:var(--mint);box-shadow:0 5px 0 #048f6a}
+  .btn.mint:active{box-shadow:0 2px 0 #048f6a}
+  .btn.purple{background:var(--purple);box-shadow:0 5px 0 #5a30a8}
+  .btn.purple:active{box-shadow:0 2px 0 #5a30a8}
+  .btn.ghost{background:#fff;color:var(--dark);box-shadow:0 5px 0 rgba(27,18,64,.18)}
+
+  .screen{display:none}
+  .screen.active{display:block;animation:fadeIn .35s ease both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* INTRO */
+  .intro{text-align:center;padding:24px 10px}
+  .intro .chart-ic{
+    width:120px;height:120px;background:linear-gradient(135deg,var(--purple),var(--orange));
+    border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+    font-size:64px;margin:14px auto;color:#fff;
+    box-shadow:0 12px 30px rgba(124,58,237,.3), inset -6px -6px 0 rgba(0,0,0,.1);
+  }
+  .intro h1{font-size:36px;margin:8px 0}
+  .intro p{font-size:16px;color:var(--gray);line-height:1.5;margin:10px 14px}
+  .preview-stats{
+    background:#fff;border:3px dashed var(--dark);border-radius:18px;
+    padding:18px 22px;margin:16px 0;text-align:left;
+  }
+  .preview-stats h3{font-size:16px;color:var(--purple);margin-bottom:8px;font-family:'JetBrains Mono';font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .preview-stats .ex{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 0;border-bottom:1px dashed rgba(27,18,64,.1);font-size:14px;
+  }
+  .preview-stats .ex:last-child{border-bottom:none}
+  .preview-stats .ex .arr{font-family:'Fredoka';font-weight:700;color:var(--red);font-size:16px}
+
+  /* GAME */
+  .top-bar{
+    background:var(--dark);color:#fff;border-radius:14px;padding:10px 14px;
+    display:flex;align-items:center;gap:10px;margin-bottom:12px;
+    box-shadow:0 4px 0 var(--darker);
+  }
+  .top-bar .q-num{
+    background:var(--yellow);color:var(--dark);padding:3px 10px;border-radius:999px;
+    font-family:'JetBrains Mono';font-weight:700;font-size:11px;letter-spacing:.06em;
+  }
+  .top-bar .title{font-family:'Fredoka';font-weight:600;font-size:14px}
+  .top-bar .score{margin-left:auto;font-family:'Fredoka';font-weight:700;font-size:15px;color:var(--mint)}
+
+  .progress-bar{display:flex;gap:3px;margin-bottom:12px}
+  .progress-bar span{flex:1;height:5px;background:rgba(27,18,64,.15);border-radius:3px;transition:all .3s}
+  .progress-bar span.ok{background:var(--mint)}
+  .progress-bar span.bad{background:var(--pink)}
+  .progress-bar span.curr{background:var(--orange);transform:scaleY(1.5)}
+
+  /* Scenario card */
+  .scenario-card{
+    background:#fff;border:4px solid var(--dark);border-radius:22px;
+    padding:24px 22px;text-align:center;
+    box-shadow:7px 7px 0 var(--dark);margin-bottom:14px;
+  }
+  .scenario-card .item-emoji{font-size:72px;line-height:1;margin:4px 0}
+  .scenario-card .item-name{
+    font-family:'Fredoka';font-weight:700;font-size:24px;color:var(--dark);
+    margin:6px 0 4px;
+  }
+  .scenario-card .freq-line{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--cream);padding:6px 14px;border-radius:999px;
+    font-family:'JetBrains Mono';font-weight:700;font-size:14px;
+    margin-top:6px;
+  }
+  .scenario-card .freq-line .price{color:var(--orange)}
+  .scenario-card .freq-line .freq{color:var(--gray)}
+  .question-prompt{
+    text-align:center;font-family:'Fredoka';font-weight:700;font-size:18px;
+    color:var(--purple);margin:14px 0 10px;
+  }
+  .price-options{display:flex;flex-direction:column;gap:8px}
+  .price-opt{
+    background:#fff;border:3px solid var(--dark);border-radius:14px;
+    padding:14px 18px;cursor:pointer;
+    font-family:'Fredoka';font-weight:700;font-size:20px;color:var(--dark);
+    box-shadow:4px 4px 0 var(--dark);
+    transition:all .15s;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .price-opt:active{transform:translate(1px,2px);box-shadow:3px 2px 0 var(--dark)}
+  .price-opt:hover{background:var(--yellow)}
+  .price-opt.correct{background:var(--mint);color:#fff;animation:correctAnim .5s}
+  .price-opt.wrong{background:var(--pink);color:#fff;animation:wrongAnim .5s}
+  @keyframes correctAnim{0%,100%{transform:none}50%{transform:scale(1.05)}}
+  @keyframes wrongAnim{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .price-opt:disabled{cursor:default}
+  .price-opt .mark{font-size:18px;opacity:0;transition:opacity .3s}
+  .price-opt.correct .mark{opacity:1}
+
+  /* Reveal screen */
+  .reveal-block{
+    background:linear-gradient(135deg,var(--red),var(--orange));
+    color:#fff;border:4px solid var(--dark);border-radius:20px;
+    padding:24px 22px;text-align:center;margin-bottom:14px;
+    box-shadow:6px 6px 0 var(--dark);
+  }
+  .reveal-block .label{
+    font-family:'JetBrains Mono';font-weight:700;font-size:11px;
+    letter-spacing:.1em;text-transform:uppercase;opacity:.9;
+  }
+  .reveal-block .annual-big{
+    font-family:'Fredoka';font-weight:700;font-size:54px;line-height:1;
+    margin:6px 0;
+  }
+  .reveal-block .annual-big .unit{font-size:30px;margin-left:4px}
+  .reveal-block .formula{
+    font-family:'JetBrains Mono';font-size:13px;opacity:.95;
+    background:rgba(0,0,0,.18);padding:6px 12px;border-radius:8px;display:inline-block;
+    margin-top:4px;
+  }
+  .comparisons{
+    background:#fff;border:3px solid var(--dark);border-radius:16px;
+    padding:14px 16px;margin-bottom:12px;
+    box-shadow:4px 4px 0 var(--dark);
+  }
+  .comparisons .ttl{
+    font-family:'Fredoka';font-weight:700;font-size:14px;
+    color:var(--purple);margin-bottom:8px;
+    text-transform:uppercase;letter-spacing:.06em;
+  }
+  .comparisons .ttl::before{content:"💡 ";font-size:18px}
+  .comparisons ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+  .comparisons li{
+    background:var(--cream);padding:6px 12px;border-radius:8px;
+    font-size:14px;display:flex;justify-content:space-between;align-items:center;
+  }
+  .comparisons li .em{font-size:18px}
+  .next-btn-wrap{text-align:center;margin-top:10px}
+
+  /* CUSTOM CALC */
+  .calc-card{
+    background:#fff;border:4px solid var(--dark);border-radius:22px;
+    padding:24px 22px;box-shadow:7px 7px 0 var(--dark);margin-bottom:14px;
+  }
+  .calc-card h2{font-size:24px;margin-bottom:6px;text-align:center}
+  .calc-card .subtitle{font-size:14px;color:var(--gray);text-align:center;margin-bottom:14px}
+  .calc-form{display:flex;flex-direction:column;gap:10px}
+  .form-row{
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .form-row label{
+    font-family:'Fredoka';font-weight:600;font-size:13px;color:var(--dark);
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .form-row input, .form-row select{
+    background:var(--cream);border:3px solid var(--dark);border-radius:12px;
+    padding:12px 14px;font-family:'Nunito';font-weight:600;font-size:16px;
+    color:var(--dark);outline:none;
+    font-family:'JetBrains Mono';
+  }
+  .form-row input:focus, .form-row select:focus{
+    background:#fff;box-shadow:0 0 0 4px rgba(124,58,237,.2);
+  }
+  .form-row.duo{flex-direction:row;gap:8px}
+  .form-row.duo > div{flex:1;display:flex;flex-direction:column;gap:4px}
+  .calc-btn{
+    background:var(--purple);color:#fff;border:none;
+    padding:16px;border-radius:14px;
+    font-family:'Fredoka';font-weight:700;font-size:18px;cursor:pointer;
+    box-shadow:0 5px 0 #5a30a8;margin-top:8px;
+  }
+  .calc-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #5a30a8}
+
+  /* FINAL */
+  .final-card{
+    background:#fff;border:4px solid var(--dark);border-radius:22px;
+    padding:24px 22px;text-align:center;box-shadow:7px 7px 0 var(--dark);margin:14px 0;
+  }
+  .final-card .big{font-size:70px;margin:4px 0}
+  .final-card h2{font-size:26px;margin:6px 0}
+  .score-box{
+    background:linear-gradient(135deg,var(--yellow),var(--yellow));
+    border:4px solid var(--dark);border-radius:18px;
+    padding:16px;margin:12px 0;
+    font-family:'Fredoka';font-weight:700;
+  }
+  .score-box .num{font-size:50px;line-height:1;color:var(--dark)}
+  .score-box .of{font-size:16px;color:var(--gray)}
+  .insight{
+    background:var(--dark);color:#fff;padding:14px 18px;border-radius:14px;
+    margin:10px 0;font-size:15px;line-height:1.5;
+  }
+  .insight strong{color:var(--yellow)}
+  .actions-row{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:80}
+  .footer{text-align:center;margin-top:24px;font-size:12px;color:var(--gray);opacity:.7}
+</style>
+</head>
+<body>
+
+<canvas id="confetti"></canvas>
+
+<div class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="screen active" id="screen-intro">
+    <div class="intro">
+      <span class="tag">Гра 3 з 4 · Фінансовий Детектив</span>
+      <div class="chart-ic">📈</div>
+      <h1>А скільки за рік?</h1>
+      <p>Дрібниці здаються дрібницями. А потім ти рахуєш — і виходить, що це твій <strong>новий ноутбук</strong>.</p>
+      <div class="preview-stats">
+        <h3>Сьогодні перевіримо</h3>
+        <div class="ex">
+          <span>☕ Латте 65₴ × 5/тиждень</span>
+          <span class="arr">≈ 16 900₴/рік</span>
+        </div>
+        <div class="ex">
+          <span>📱 Spotify 99₴/місяць</span>
+          <span class="arr">≈ 1 200₴/рік</span>
+        </div>
+        <div class="ex">
+          <span>🍫 Шоколадка 30₴ × 5/тиж</span>
+          <span class="arr">≈ 7 800₴/рік</span>
+        </div>
+      </div>
+      <p style="font-size:14px;color:var(--gray)">8 сценаріїв + <strong>калькулятор для своєї звички</strong>.</p>
+      <button class="btn dark" onclick="startGame()" style="font-size:20px;padding:16px 30px;margin-top:10px">Шокувати себе 🚀</button>
+    </div>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section class="screen" id="screen-game">
+    <div class="top-bar">
+      <span class="q-num" id="qNum">1 / 8</span>
+      <span class="title" id="titleText">Угадай скільки</span>
+      <span class="score" id="scoreText">✓ 0</span>
+    </div>
+
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="scenario-card">
+      <div class="item-emoji" id="itemEmoji">☕</div>
+      <div class="item-name" id="itemName">Латте</div>
+      <div class="freq-line">
+        <span class="price" id="itemPrice">65₴</span>
+        <span>×</span>
+        <span class="freq" id="itemFreq">5 разів на тиждень</span>
+      </div>
+    </div>
+
+    <div class="question-prompt">📊 Скільки це накопичить за РІК?</div>
+
+    <div class="price-options" id="priceOptions"></div>
+
+    <div id="revealArea"></div>
+    <div class="next-btn-wrap" id="nextBtnWrap" style="display:none">
+      <button class="btn dark" id="nextBtn" onclick="nextScenario()">Далі →</button>
+    </div>
+  </section>
+
+  <!-- ============ CUSTOM CALCULATOR ============ -->
+  <section class="screen" id="screen-calc">
+    <div class="top-bar">
+      <span class="q-num">БОНУС</span>
+      <span class="title">Перевір СВОЮ звичку</span>
+    </div>
+
+    <div class="calc-card">
+      <h2>🧮 Твій калькулятор</h2>
+      <p class="subtitle">Що ти регулярно купуєш? Перевір.</p>
+      <div class="calc-form">
+        <div class="form-row">
+          <label>Що це?</label>
+          <input type="text" id="calcName" placeholder="напр. латте, енергетик, гра..." maxlength="40">
+        </div>
+        <div class="form-row duo">
+          <div>
+            <label>Скільки коштує (₴)</label>
+            <input type="number" id="calcPrice" placeholder="65" min="1" max="100000">
+          </div>
+          <div>
+            <label>Як часто</label>
+            <input type="number" id="calcFreq" placeholder="5" min="1" max="100">
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Період</label>
+          <select id="calcPeriod">
+            <option value="week">разів на тиждень</option>
+            <option value="month">разів на місяць</option>
+            <option value="day">разів на день</option>
+          </select>
+        </div>
+        <button class="calc-btn" onclick="calculateCustom()">🔥 Розрахувати</button>
+      </div>
+    </div>
+
+    <div id="calcResult"></div>
+
+    <div class="next-btn-wrap">
+      <button class="btn ghost" onclick="showFinal()">До підсумку →</button>
+    </div>
+  </section>
+
+  <!-- ============ FINAL ============ -->
+  <section class="screen" id="screen-final">
+    <div class="final-card">
+      <div class="big">📊</div>
+      <h2>Розслідування завершено</h2>
+      <p style="color:var(--gray);font-size:15px">Скільки сценаріїв ти вгадав правильно:</p>
+      <div class="score-box">
+        <div class="num"><span id="finalScore">0</span> / 8</div>
+      </div>
+      <div class="insight" id="finalInsight">
+        💡 Тепер ти бачиш: <strong>50 ₴ — це не 50 ₴</strong>. Це 18 000 ₴ на рік.
+        Який вибір ти зробиш завтра вранці на каві? 🤔
+      </div>
+      <div class="actions-row">
+        <button class="btn mint" onclick="restartGame()">↻ Ще раз</button>
+      </div>
+    </div>
+    <p class="hand" style="text-align:center;font-size:22px;color:var(--orange);margin-top:14px">
+      🎓 Покажи свій ОСОБИСТИЙ результат у Google Meet!
+    </p>
+  </section>
+
+  <div class="footer">Куди зникають гроші · Гра 3 з 4 · Латте-ефект</div>
+</div>
+
+<script>
+// ===== SCENARIOS =====
+const SCENARIOS = [
+  {
+    em:'☕', name:'Латте',
+    price:65, freqText:'5 разів на тиждень', perYear:65*5*52,
+    options:[6500, 16900, 32000],
+    formula:'65₴ × 5 разів × 52 тижні',
+    compare:[
+      {em:'📱', txt:'iPhone-бюджетник'},
+      {em:'💻', txt:'2 місяці на курсах англ.'},
+      {em:'✈️', txt:'квиток у Польщу і назад'},
+    ]
+  },
+  {
+    em:'⚡', name:'Енергетик',
+    price:45, freqText:'3 рази на тиждень', perYear:45*3*52,
+    options:[2400, 7020, 15000],
+    formula:'45₴ × 3 рази × 52 тижні',
+    compare:[
+      {em:'🎧', txt:'хороші навушники'},
+      {em:'🎮', txt:'AirPods (не нові)'},
+      {em:'🚲', txt:'половина велосипеда'},
+    ]
+  },
+  {
+    em:'🍫', name:'Шоколадка / чіпси',
+    price:30, freqText:'5 разів на тиждень', perYear:30*5*52,
+    options:[3000, 7800, 15000],
+    formula:'30₴ × 5 разів × 52 тижні',
+    compare:[
+      {em:'👟', txt:'нові кросівки'},
+      {em:'🎟️', txt:'52 походи в кіно'},
+      {em:'📚', txt:'30 книжок'},
+    ]
+  },
+  {
+    em:'🎵', name:'Spotify Premium',
+    price:99, freqText:'щомісяця', perYear:99*12,
+    options:[500, 1188, 3500],
+    formula:'99₴ × 12 місяців',
+    compare:[
+      {em:'🎤', txt:'квиток на концерт'},
+      {em:'🎮', txt:'нова гра на Steam'},
+      {em:'📕', txt:'5 книжок'},
+    ]
+  },
+  {
+    em:'💝', name:'Donate стримеру',
+    price:100, freqText:'2 рази на місяць', perYear:100*2*12,
+    options:[800, 2400, 6000],
+    formula:'100₴ × 2 рази × 12 місяців',
+    compare:[
+      {em:'🎨', txt:'набір для малювання'},
+      {em:'⚽', txt:'місяць спортивної секції'},
+      {em:'🍕', txt:'24 піци в кафе'},
+    ]
+  },
+  {
+    em:'🛵', name:'Glovo / доставка',
+    price:280, freqText:'1 раз на тиждень', perYear:280*52,
+    options:[5000, 14560, 28000],
+    formula:'280₴ × 52 тижні',
+    compare:[
+      {em:'💻', txt:'бюджетний ноутбук'},
+      {em:'📱', txt:'добрий смартфон'},
+      {em:'✈️', txt:'поїздка з друзями'},
+    ]
+  },
+  {
+    em:'🛍️', name:'Імпульс з AliExpress / Shein',
+    price:150, freqText:'2 рази на місяць', perYear:150*2*12,
+    options:[1500, 3600, 7500],
+    formula:'150₴ × 2 рази × 12 місяців',
+    compare:[
+      {em:'🎒', txt:'класний рюкзак'},
+      {em:'👕', txt:'3 якісні футболки'},
+      {em:'🎨', txt:'графічний планшет-бюджетник'},
+    ]
+  },
+  {
+    em:'🚇', name:'Метро туди-назад',
+    price:16, freqText:'5 днів на тиждень', perYear:16*5*52,
+    options:[1500, 4160, 9000],
+    formula:'16₴ × 5 днів × 52 тижні',
+    compare:[
+      {em:'🚲', txt:'старший б/в велосипед'},
+      {em:'🎟️', txt:'14 походів у кіно'},
+      {em:'🎮', txt:'хороша приставка б/в'},
+    ]
+  },
+];
+
+let scIdx = 0;
+let score = 0;
+let answered = false;
+
+function startGame(){
+  scIdx = 0; score = 0;
+  document.getElementById('screen-intro').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+  renderProgress();
+  showScenario();
+}
+
+function renderProgress(){
+  const bar = document.getElementById('progressBar');
+  bar.innerHTML = '';
+  for(let i=0;i<SCENARIOS.length;i++) bar.insertAdjacentHTML('beforeend','<span></span>');
+}
+
+function showScenario(){
+  answered = false;
+  const s = SCENARIOS[scIdx];
+  document.getElementById('qNum').textContent = `${scIdx+1} / ${SCENARIOS.length}`;
+  document.getElementById('scoreText').textContent = `✓ ${score}`;
+  document.getElementById('itemEmoji').textContent = s.em;
+  document.getElementById('itemName').textContent = s.name;
+  document.getElementById('itemPrice').textContent = s.price + '₴';
+  document.getElementById('itemFreq').textContent = s.freqText;
+
+  const bars = document.querySelectorAll('#progressBar span');
+  bars.forEach((b,i)=>b.classList.toggle('curr', i===scIdx));
+
+  const opts = document.getElementById('priceOptions');
+  opts.innerHTML = '';
+  // Find correct index (with failsafe: pick nearest if no exact match)
+  let correctIdx = s.options.indexOf(s.perYear);
+  if(correctIdx === -1){
+    correctIdx = s.options.reduce((bestIdx, val, i, arr) =>
+      Math.abs(val - s.perYear) < Math.abs(arr[bestIdx] - s.perYear) ? i : bestIdx, 0);
+    console.warn('Annual game: no exact option for', s.name, 'perYear:', s.perYear, '— using nearest:', s.options[correctIdx]);
+  }
+  s.options.forEach((p,i)=>{
+    const b = document.createElement('button');
+    b.className = 'price-opt';
+    b.innerHTML = `<span>${fmtMoney(p)}</span><span class="mark">✓</span>`;
+    b.onclick = ()=>answer(i, b, correctIdx, p);
+    opts.appendChild(b);
+  });
+
+  document.getElementById('revealArea').innerHTML = '';
+  document.getElementById('nextBtnWrap').style.display = 'none';
+}
+
+function fmtMoney(n){
+  // Format like 16 900 ₴
+  return n.toLocaleString('uk-UA').replace(/\s/g,' ') + ' ₴';
+}
+
+function answer(idx, btn, correctIdx, picked){
+  if(answered) return;
+  answered = true;
+  const s = SCENARIOS[scIdx];
+  const opts = document.querySelectorAll('.price-opt');
+  opts.forEach(o=>o.disabled=true);
+  opts[correctIdx].classList.add('correct');
+
+  if(idx === correctIdx){
+    score++;
+    document.querySelectorAll('#progressBar span')[scIdx].classList.add('ok');
+    miniConfetti();
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('#progressBar span')[scIdx].classList.add('bad');
+  }
+  document.getElementById('scoreText').textContent = `✓ ${score}`;
+
+  // Build reveal block + comparisons
+  const html = `
+    <div class="reveal-block">
+      <div class="label">За один рік це</div>
+      <div class="annual-big">${s.perYear.toLocaleString('uk-UA').replace(/\s/g,' ')}<span class="unit">₴</span></div>
+      <div class="formula">${s.formula}</div>
+    </div>
+    <div class="comparisons">
+      <div class="ttl">На ці гроші можна купити:</div>
+      <ul>
+        ${s.compare.map(c=>`<li><span>${c.txt}</span><span class="em">${c.em}</span></li>`).join('')}
+      </ul>
+    </div>
+  `;
+  document.getElementById('revealArea').innerHTML = html;
+
+  document.getElementById('nextBtn').textContent =
+    (scIdx < SCENARIOS.length-1) ? 'Далі →' : 'До свого калькулятора 🧮';
+  document.getElementById('nextBtnWrap').style.display = 'block';
+}
+
+function nextScenario(){
+  if(scIdx < SCENARIOS.length-1){
+    scIdx++;
+    showScenario();
+  } else {
+    showCalculator();
+  }
+}
+
+function showCalculator(){
+  document.getElementById('screen-game').classList.remove('active');
+  document.getElementById('screen-calc').classList.add('active');
+  document.getElementById('calcResult').innerHTML = '';
+}
+
+function calculateCustom(){
+  const name = document.getElementById('calcName').value.trim() || 'твоя звичка';
+  const price = parseFloat(document.getElementById('calcPrice').value);
+  const freq = parseFloat(document.getElementById('calcFreq').value);
+  const period = document.getElementById('calcPeriod').value;
+
+  if(!price || !freq || price <= 0 || freq <= 0){
+    document.getElementById('calcResult').innerHTML =
+      `<div class="comparisons"><div class="ttl" style="color:var(--red)">⚠️ Заповни ціну і кількість</div></div>`;
+    return;
+  }
+
+  let multiplier;
+  let formula;
+  if(period === 'day'){
+    multiplier = 365;
+    formula = `${price}₴ × ${freq} × 365 днів`;
+  } else if(period === 'week'){
+    multiplier = 52;
+    formula = `${price}₴ × ${freq} × 52 тижні`;
+  } else {
+    multiplier = 12;
+    formula = `${price}₴ × ${freq} × 12 місяців`;
+  }
+  const annual = Math.round(price * freq * multiplier);
+
+  // Comparisons by bracket
+  let compares = getComparisons(annual);
+
+  document.getElementById('calcResult').innerHTML = `
+    <div class="reveal-block">
+      <div class="label">«${name}» за рік</div>
+      <div class="annual-big">0<span class="unit">₴</span></div>
+      <div class="formula">${formula}</div>
+    </div>
+    <div class="comparisons">
+      <div class="ttl">На ці гроші можна:</div>
+      <ul>
+        ${compares.map(c=>`<li><span>${c.txt}</span><span class="em">${c.em}</span></li>`).join('')}
+      </ul>
+    </div>
+  `;
+
+  // Animate the number count up
+  const numEl = document.querySelector('#calcResult .annual-big');
+  const targetText = annual.toLocaleString('uk-UA').replace(/\s/g,' ');
+  let cur = 0;
+  const duration = 1100;
+  const start = performance.now();
+  function step(t){
+    const p = Math.min((t-start)/duration, 1);
+    const eased = 1 - Math.pow(1-p, 3);
+    cur = Math.round(annual * eased);
+    numEl.innerHTML = cur.toLocaleString('uk-UA').replace(/\s/g,' ') + '<span class="unit">₴</span>';
+    if(p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+
+  if(annual >= 5000) burstConfetti(); else miniConfetti();
+}
+
+function getComparisons(amount){
+  if(amount < 500){
+    return [
+      {em:'☕', txt:'2-3 кави в Starbucks'},
+      {em:'🍫', txt:'15 шоколадок'},
+    ];
+  }
+  if(amount < 2000){
+    return [
+      {em:'🎮', txt:'нова гра у Steam'},
+      {em:'📚', txt:'5-7 книжок'},
+      {em:'🎤', txt:'квиток на місцевий концерт'},
+    ];
+  }
+  if(amount < 5000){
+    return [
+      {em:'👟', txt:'нові кросівки'},
+      {em:'🎨', txt:'набір для творчості'},
+      {em:'🎟️', txt:'30 походів у кіно'},
+    ];
+  }
+  if(amount < 10000){
+    return [
+      {em:'🎧', txt:'класні навушники'},
+      {em:'🚲', txt:'дитячий велосипед'},
+      {em:'💻', txt:'місяць на IT-курсах'},
+    ];
+  }
+  if(amount < 20000){
+    return [
+      {em:'📱', txt:'добрий смартфон'},
+      {em:'💻', txt:'бюджетний ноутбук б/в'},
+      {em:'✈️', txt:'поїздка з родиною'},
+    ];
+  }
+  if(amount < 50000){
+    return [
+      {em:'💻', txt:'хороший ноутбук'},
+      {em:'🎮', txt:'PlayStation 5'},
+      {em:'✈️', txt:'літо в подорожі з друзями'},
+    ];
+  }
+  return [
+    {em:'🚗', txt:'перший автомобіль'},
+    {em:'🏠', txt:'ремонт у кімнаті'},
+    {em:'🎓', txt:'рік навчання на курсах'},
+  ];
+}
+
+function showFinal(){
+  document.getElementById('screen-calc').classList.remove('active');
+  document.getElementById('screen-final').classList.add('active');
+  document.getElementById('finalScore').textContent = score;
+
+  let insight = '';
+  if(score === 8){
+    insight = "🎯 <strong>8/8!</strong> Ти бачиш цифри як справжній аналітик. Тепер питання — що з цим робити?";
+  } else if(score >= 6){
+    insight = "💡 Ти добре відчуваєш масштаб дрібних витрат. Але навіть ці цифри — це лише <strong>4 категорії з твого життя</strong>.";
+  } else if(score >= 3){
+    insight = "🤔 Не вгадав більшість? Це нормально — мозок недооцінює маленькі суми. Тепер ти знаєш правду.";
+  } else {
+    insight = "🌫 Дрібні витрати завжди здаються меншими, ніж є. Ти не один такий — це психологія, не помилка.";
+  }
+  insight += "<br><br>💡 Найважливіше: <strong style='color:var(--yellow)'>50₴ — це не 50₴.</strong> Це 18 000₴ на рік.";
+  document.getElementById('finalInsight').innerHTML = insight;
+
+  burstConfetti();
+}
+
+function restartGame(){
+  document.getElementById('screen-final').classList.remove('active');
+  document.getElementById('screen-intro').classList.add('active');
+}
+
+// CONFETTI
+const cvs = document.getElementById('confetti');
+const ctx = cvs.getContext('2d');
+function sizeCanvas(){ cvs.width = innerWidth; cvs.height = innerHeight; }
+sizeCanvas(); window.addEventListener('resize', sizeCanvas);
+let particles = [];
+const cColors = ['#FFD93D','#FF6B35','#06D6A0','#4ECDC4','#FF8FA3','#7C3AED','#1B1240'];
+function emit(n, x, y){
+  for(let i=0;i<n;i++){
+    particles.push({
+      x, y, vx:(Math.random()-0.5)*9, vy:-Math.random()*15-3,
+      g:0.5, size:4+Math.random()*5,
+      color:cColors[Math.floor(Math.random()*cColors.length)],
+      life:80+Math.random()*40,
+      rot:Math.random()*Math.PI, vrot:(Math.random()-0.5)*0.3
+    });
+  }
+}
+function tickC(){
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  particles = particles.filter(p=>p.life>0);
+  particles.forEach(p=>{
+    p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vrot; p.life--;
+    ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+    ctx.fillStyle=p.color;
+    ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*1.6);
+    ctx.restore();
+  });
+  requestAnimationFrame(tickC);
+}
+tickC();
+function miniConfetti(){ emit(25, innerWidth/2, innerHeight*0.4); }
+function burstConfetti(){
+  emit(60, innerWidth*0.25, innerHeight*0.35);
+  emit(60, innerWidth*0.75, innerHeight*0.35);
+}
+</script>
+</body>
+</html>
